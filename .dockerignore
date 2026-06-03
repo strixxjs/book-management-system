@@ -1,0 +1,10 @@
+.git/
+.gitignore
+.env
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+.pytest_cache/
+tests/
+CONTEXT.md
