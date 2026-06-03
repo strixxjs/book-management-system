@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file="../../.env",
+        env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
     )
@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     app_name: str = "Book Managment System"
     debug: bool = False
 
-    datebase_url: str
+    database_url: str
 
     secret_key: str
     algorithm: str = "HS256"
