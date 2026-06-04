@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     debug: bool = False
 
     database_url: str
+    test_datebase_url: str | None = None
 
     secret_key: str
     algorithm: str = "HS256"
