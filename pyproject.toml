@@ -22,5 +22,5 @@ dependencies = [
 dev = [
     "ruff>=0.8",
     "pytest>=8",
-    "ruff>=0.8",
+    "pytest-asyncio>=1.0",
 ]
