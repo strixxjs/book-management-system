@@ -75,3 +75,24 @@ class BookListResponse(BaseModel):
     total: int
     limit: int
     offset: int
+
+
+class BookImportRow(BookCreate):
+    """
+    One line import. Investigates BookCreate, so all validators
+(year, whitelist genres, non-empty title) are automatically applied.
+Separate class leaves the possibility in new addition of `row_number` field
+or relaxed-variant without author_name.
+    """
+    pass
+
+
+class RowError(BaseModel):
+    row: int
+    field: str | None = None
+    message: str
+
+
+class BulkImportResponse(BaseModel):
+    imported: int
+    errors: list[RowError] = []
