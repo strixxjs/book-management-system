@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from pywin.dialogs import login
 
+from app.api.v1.auth import router as auth_router
 from app.db.session import engine
 
 
@@ -16,6 +18,8 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+app.include_router(auth_router, prefix="/api/v1")
 
 
 @app.get("/")

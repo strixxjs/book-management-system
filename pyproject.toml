@@ -7,9 +7,12 @@ requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.18.4",
     "asyncpg>=0.29",
+    "bcrypt>=5.0.0",
     "fastapi>=0.115",
+    "passlib>=1.7.4",
     "psycopg[binary]>=3.3.4",
     "pydantic-settings>=2.0",
+    "python-jose[cryptography]>=3.5.0",
     "sqlalchemy[asyncio]>=2.0",
     "uvicorn[standard]>=0.34",
 ]
