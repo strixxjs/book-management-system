@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from app.api.v1.auth import router as auth_router
 from app.api.v1.books import router as books_router
+from app.core.errors import register_exception_handlers
 from app.db.session import engine
 
 
@@ -18,6 +19,8 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+register_exception_handlers(app)
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(books_router, prefix="/api/v1")

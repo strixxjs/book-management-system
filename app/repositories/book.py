@@ -42,7 +42,7 @@ class BookRepository:
         await self.session.delete(book)
         await self.session.flush()
 
-    async def list(
+    async def get_list(
         self,
         title: str | None = None,
         author_name: str | None = None,

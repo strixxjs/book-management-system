@@ -66,8 +66,8 @@ class BookService:
             raise LookupError(f"Book {book_id} not found")
         await self._book_repo.delete(book)
 
-    async def list(self, filters: BookFilters) -> tuple[list, int]:
-        return await self._book_repo.list(
+    async def get_list(self, filters: BookFilters) -> tuple[list, int]:
+        return await self._book_repo.get_list(
             title=filters.title,
             author_name=filters.author_name,
             genre=filters.genre.value if filters.genre else None,
@@ -81,13 +81,13 @@ class BookService:
     async def bulk_import(self, rows: list[dict]) -> BulkImportResponse:
         """
         Validates every row via BookImportRow (Pydantic) before any INSERT.
-        Strategy: all-or-nothing — if any row is invalid, nothing is written.
+        Strategy: all-or-nothing - if any row is invalid, nothing is written.
 
         Why all-or-nothing:
         The file is treated as a single atomic unit. The caller gets a clear
         contract: either everything landed or nothing did. Best-effort with
         partial commits would need savepoints and a more complex response
-        schema — out of scope here, and intentionally so.
+        schema - out of scope here, and intentionally so.
         """
         errors: list[RowError] = []
         validated: list[BookImportRow] = []
