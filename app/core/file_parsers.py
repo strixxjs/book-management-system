@@ -35,7 +35,9 @@ def _parse_csv(content: bytes) -> list[dict]:
     try:
         text = content.decode("utf-8")
     except UnicodeDecodeError as exc:
-        raise HTTPException(status_code=400, detail=f"CSV must be UTF-8 encoded: {exc}") from exc
+        raise HTTPException(
+            status_code=400, detail=f"CSV must be UTF-8 encoded: {exc}"
+        ) from exc
 
     reader = csv.DictReader(io.StringIO(text))
     rows = list(reader)

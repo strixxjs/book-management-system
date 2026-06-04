@@ -5,7 +5,7 @@ from app.db.base import Base, TimestampMixin
 
 
 class User(Base, TimestampMixin):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     email: Mapped[str] = mapped_column(
         String(255),
@@ -21,11 +21,11 @@ class User(Base, TimestampMixin):
         Boolean,
         nullable=False,
         default=True,
-        server_default='true',
+        server_default="true",
     )
 
-    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
+    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(  # noqa: F821
         "RefreshToken",
         back_populates="user",
-        lazy='raise',
+        lazy="raise",
     )

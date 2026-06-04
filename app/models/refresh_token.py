@@ -9,11 +9,11 @@ from app.db.base import Base, TimestampMixin
 
 
 class RefreshToken(Base, TimestampMixin):
-    __tablename__ = 'refresh_tokens'
+    __tablename__ = "refresh_tokens"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
         PG_UUID(as_uuid=True),
-        ForeignKey('users.id', ondelete='CASCADE'),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -23,8 +23,8 @@ class RefreshToken(Base, TimestampMixin):
         nullable=False,
     )
 
-    user: Mapped["User"] = relationship(
+    user: Mapped["User"] = relationship(  # noqa: F821
         "User",
         back_populates="refresh_tokens",
-        lazy='raise',
+        lazy="raise",
     )

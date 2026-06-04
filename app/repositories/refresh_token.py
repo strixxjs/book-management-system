@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +10,9 @@ class RefreshTokenRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def create(self, user_id: str, token: str, expires_at: datetime) -> RefreshToken:
+    async def create(
+        self, user_id: str, token: str, expires_at: datetime
+    ) -> RefreshToken:
         refresh_token = RefreshToken(
             user_id=user_id,
             token=token,
@@ -21,11 +23,17 @@ class RefreshTokenRepository:
         return refresh_token
 
     async def get_by_token(self, token: str) -> RefreshToken | None:
-        result = await self.session.execute(select(RefreshToken).where(RefreshToken.token == token))
+        result = await self.session.execute(
+            select(RefreshToken).where(RefreshToken.token == token)
+        )
         return result.scalar_one_or_none()
 
     async def delete_by_token(self, token: str) -> None:
-        await self.session.execute(delete(RefreshToken).where(RefreshToken.token == token))
+        await self.session.execute(
+            delete(RefreshToken).where(RefreshToken.token == token)
+        )
 
     async def delete_expired(self) -> None:
-        await self.session.execute(delete(RefreshToken).where(RefreshToken.expires_at < datetime.utcnow()))
+        await self.session.execute(
+            delete(RefreshToken).where(RefreshToken.expires_at < datetime.utcnow())
+        )

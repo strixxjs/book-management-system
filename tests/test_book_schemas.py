@@ -7,7 +7,12 @@ from app.schemas.book import BookCreate, BookUpdate
 
 
 def _valid(**overrides):
-    data = {"title": "1984", "author": "George Orwell", "genre": "fiction", "year": 1949}
+    data = {
+        "title": "1984",
+        "author": "George Orwell",
+        "genre": "fiction",
+        "year": 1949,
+    }
     data.update(overrides)
     return data
 

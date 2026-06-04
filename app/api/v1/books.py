@@ -6,7 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.dependencies import get_current_user
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.book import BookCreate, BookFilters, BookRead, BookUpdate, BookListResponse
+from app.schemas.book import (
+    BookCreate,
+    BookFilters,
+    BookRead,
+    BookUpdate,
+    BookListResponse,
+)
 from app.services.book import BookService
 
 router = APIRouter(prefix="/books", tags=["books"])
@@ -41,7 +47,11 @@ async def get_book(
 
 
 @router.get("/", response_model=BookListResponse)
-async def list_books(filters: BookFilters = Depends(), service: BookService = Depends(get_book_service), _: User = Depends(get_current_user)):
+async def list_books(
+    filters: BookFilters = Depends(),
+    service: BookService = Depends(get_book_service),
+    _: User = Depends(get_current_user),
+):
     items, total = await service.list(filters)
     return BookListResponse(
         items=items,

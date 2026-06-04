@@ -1,3 +1,8 @@
+import csv
+import io
+import json
+
+from pydantic import ValidationError
 from uuid import UUID
 
 from sqlalchemy.exc import IntegrityError
@@ -5,7 +10,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repositories.author import AuthorRepository
 from app.repositories.book import BookRepository
-from app.schemas.book import BookCreate, BookUpdate, BookFilters
+from app.schemas.book import (
+    BookCreate,
+    BookFilters,
+    BookImportRow,
+    BookRead,
+    BulkImportResponse,
+    BookUpdate,
+    RowError,
+)
 
 
 class BookService:
@@ -64,3 +77,75 @@ class BookService:
             limit=filters.limit,
             offset=filters.offset,
         )
+
+    async def bulk_import(self, rows: list[dict]) -> BulkImportResponse:
+        """
+        Validates every row via BookImportRow (Pydantic) before any INSERT.
+        Strategy: all-or-nothing — if any row is invalid, nothing is written.
+
+        Why all-or-nothing:
+        The file is treated as a single atomic unit. The caller gets a clear
+        contract: either everything landed or nothing did. Best-effort with
+        partial commits would need savepoints and a more complex response
+        schema — out of scope here, and intentionally so.
+        """
+        errors: list[RowError] = []
+        validated: list[BookImportRow] = []
+
+        for i, raw in enumerate(rows, start=1):
+            try:
+                validated.append(BookImportRow.model_validate(raw))
+            except ValidationError as exc:
+                for e in exc.errors():
+                    field = ".".join(str(loc) for loc in e["loc"]) if e["loc"] else None
+                    errors.append(RowError(row=i, field=field, message=e["msg"]))
+
+        if errors:
+            return BulkImportResponse(imported=0, errors=errors)
+
+        imported = 0
+        for book_in in validated:
+            try:
+                await self.create(book_in)
+                imported += 1
+            except ValueError as exc:
+                raise ValueError(f"Row {imported + 1}: {exc}") from exc
+
+        return BulkImportResponse(imported=imported, errors=[])
+
+    async def export_books_json(self) -> str:
+        """
+        Serialises all books to a JSON string using BookRead schema.
+        The same schema is used by GET /books/{id}, so the export format
+        is consistent with the REST API response.
+        default=str handles UUID and datetime serialisation.
+        """
+        books = await self._book_repo.get_all_for_export()
+        data = [
+            BookRead.model_validate(b, from_attributes=True).model_dump() for b in books
+        ]
+        return json.dumps(data, ensure_ascii=False, default=str, indent=2)
+
+    async def export_books_csv(self) -> str:
+        """
+        Serialises all books to a CSV string via io.StringIO.
+        StringIO keeps everything in memory — no filesystem, no cleanup needed.
+        Fields match the BookRead schema so the CSV is consistent with the API.
+        """
+        books = await self._book_repo.get_all_for_export()
+        output = io.StringIO()
+        fieldnames = ["id", "title", "author", "genre", "year", "created_at"]
+        writer = csv.DictWriter(output, fieldnames=fieldnames)
+        writer.writeheader()
+        for b in books:
+            writer.writerow(
+                {
+                    "id": str(b.id),
+                    "title": b.title,
+                    "author": b.author.name if b.author else "",
+                    "genre": b.genre or "",
+                    "year": b.year or "",
+                    "created_at": b.created_at.isoformat(),
+                }
+            )
+        return output.getvalue()

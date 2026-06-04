@@ -3,7 +3,6 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.pool import NullPool
 
-import app.models
 from app.core.config import settings
 from app.db.base import Base
 

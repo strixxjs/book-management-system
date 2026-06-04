@@ -3,7 +3,6 @@ from typing import Annotated
 from uuid import UUID
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, StringConstraints, Field
-from fastapi import Query
 
 from app.core.enums import Genre
 from app.schemas.author import AuthorRead
@@ -22,8 +21,12 @@ def _validate_year(value: int) -> int:
     return value
 
 
-Title = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)]
-AuthorName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)]
+Title = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)
+]
+AuthorName = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)
+]
 Year = Annotated[int, AfterValidator(_validate_year)]
 
 
@@ -79,11 +82,12 @@ class BookListResponse(BaseModel):
 
 class BookImportRow(BookCreate):
     """
-    One line import. Investigates BookCreate, so all validators
-(year, whitelist genres, non-empty title) are automatically applied.
-Separate class leaves the possibility in new addition of `row_number` field
-or relaxed-variant without author_name.
+        One line import. Investigates BookCreate, so all validators
+    (year, whitelist genres, non-empty title) are automatically applied.
+    Separate class leaves the possibility in new addition of `row_number` field
+    or relaxed-variant without author_name.
     """
+
     pass
 
 

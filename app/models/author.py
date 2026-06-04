@@ -15,7 +15,7 @@ class Author(Base, TimestampMixin):
     )
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    books: Mapped[list["Book"]] = relationship(
+    books: Mapped[list["Book"]] = relationship(  # noqa: F821
         "Book",
         back_populates="author",
         lazy="raise",

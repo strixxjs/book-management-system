@@ -18,8 +18,12 @@ def get_auth_service(session: AsyncSession = Depends(get_db)) -> AuthService:
     return AuthService(session)
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(body: RegisterRequest, service: AuthService = Depends(get_auth_service)):
+@router.post(
+    "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+)
+async def register(
+    body: RegisterRequest, service: AuthService = Depends(get_auth_service)
+):
     try:
         user = await service.register(email=body.email, password=body.password)
         return user
@@ -36,7 +40,9 @@ async def login(body: LoginRequest, service: AuthService = Depends(get_auth_serv
 
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh(body: RefreshRequest, service: AuthService = Depends(get_auth_service)):
+async def refresh(
+    body: RefreshRequest, service: AuthService = Depends(get_auth_service)
+):
     try:
         return await service.refresh(refresh_token=body.refresh_token)
     except ValueError as e:
@@ -44,5 +50,7 @@ async def refresh(body: RefreshRequest, service: AuthService = Depends(get_auth_
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(body: RefreshRequest, service: AuthService = Depends(get_auth_service)):
+async def logout(
+    body: RefreshRequest, service: AuthService = Depends(get_auth_service)
+):
     await service.logout(refresh_token=body.refresh_token)

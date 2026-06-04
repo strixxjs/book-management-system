@@ -30,7 +30,7 @@ class AuthService:
         hashed = hash_password(password)
         return await self.user_repo.create(email=email, hashed_password=hashed)
 
-    async def login(self, email:str, password:str) -> TokenResponse:
+    async def login(self, email: str, password: str) -> TokenResponse:
         user = await self.user_repo.get_by_email(email)
         if not user or not verify_password(password, user.hashed_password):
             raise ValueError("Invalid credentials")
@@ -38,7 +38,7 @@ class AuthService:
             raise ValueError("User inactive")
         return await self._issue_tokens(str(user.id))
 
-    async def refresh(self, refresh_token:str) -> TokenResponse:
+    async def refresh(self, refresh_token: str) -> TokenResponse:
         try:
             payload = decode_token(refresh_token)
         except JWTError:
@@ -54,16 +54,18 @@ class AuthService:
         await self.token_repo.delete_by_token(refresh_token)
         return await self._issue_tokens(payload["sub"])
 
-    async def logout(self, refresh_token:str) -> None:
+    async def logout(self, refresh_token: str) -> None:
         await self.token_repo.delete_by_token(refresh_token)
 
     async def _issue_tokens(self, user_id: str) -> TokenResponse:
         access_token = create_access_token(subject=user_id)
         refresh_token = create_refresh_token(subject=user_id)
-        expires_at = datetime.now(UTC) + timedelta(minutes=settings.refresh_token_expire_minutes)
+        expires_at = datetime.now(UTC) + timedelta(
+            minutes=settings.refresh_token_expire_minutes
+        )
         await self.token_repo.create(
-            user_id = user_id,
-            token = refresh_token,
-            expires_at = expires_at,
+            user_id=user_id,
+            token=refresh_token,
+            expires_at=expires_at,
         )
         return TokenResponse(access_token=access_token, refresh_token=refresh_token)

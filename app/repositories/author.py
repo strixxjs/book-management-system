@@ -10,13 +10,9 @@ class AuthorRepository:
 
     async def get_or_create(self, name: str) -> Author:
         insert_stmt = pg_insert(Author).values(name=name)
-        upsert_stmt = (
-            insert_stmt
-            .on_conflict_do_update(
-                index_elements=[Author.name],
-                set_={"name": insert_stmt.excluded.name},
-            )
-            .returning(Author)
-        )
+        upsert_stmt = insert_stmt.on_conflict_do_update(
+            index_elements=[Author.name],
+            set_={"name": insert_stmt.excluded.name},
+        ).returning(Author)
         result = await self.session.execute(upsert_stmt)
         return result.scalar_one()

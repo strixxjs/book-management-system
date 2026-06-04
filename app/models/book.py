@@ -30,7 +30,7 @@ class Book(Base, TimestampMixin):
 
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    author: Mapped["Author"] = relationship(
+    author: Mapped["Author"] = relationship(  # noqa: F821
         "Author",
         back_populates="books",
         lazy="raise",
