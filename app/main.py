@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from pywin.dialogs import login
 
 from app.api.v1.auth import router as auth_router
 from app.db.session import engine

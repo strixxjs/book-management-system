@@ -1,7 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
 from jose import JWTError
-from pywin.framework.interact import valueFormatOutputError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -20,7 +19,7 @@ from app.schemas.auth import TokenResponse
 
 class AuthService:
     def __init__(self, session: AsyncSession) -> None:
-        self.session: session
+        self.session = session
         self.user_repo = UserRepository(session)
         self.token_repo = RefreshTokenRepository(session)
 
@@ -58,10 +57,10 @@ class AuthService:
     async def logout(self, refresh_token:str) -> None:
         await self.token_repo.delete_by_token(refresh_token)
 
-    async def _issue_tokens(self, email:str) -> TokenResponse:
+    async def _issue_tokens(self, user_id: str) -> TokenResponse:
         access_token = create_access_token(subject=user_id)
         refresh_token = create_refresh_token(subject=user_id)
-        expires_at = datetime.utcnow() + timedelta(minutes=settings.TOKEN_EXPIRATION_MINUTES)
+        expires_at = datetime.now(UTC) + timedelta(minutes=settings.refresh_token_expire_minutes)
         await self.token_repo.create(
             user_id = user_id,
             token = refresh_token,

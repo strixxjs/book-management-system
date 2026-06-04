@@ -1,7 +1,8 @@
-from pydantic import BaseModel, EmailStr
+import uuid
+from pydantic import BaseModel, EmailStr, field_validator
 
 
-class ReguisterRequest(BaseModel):
+class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
 
@@ -29,7 +30,7 @@ class RefreshRequest(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: str
+    id: uuid.UUID
     email: str
     is_active: bool
 

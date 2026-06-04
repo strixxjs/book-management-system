@@ -44,5 +44,5 @@ async def refresh(body: RefreshRequest, service: AuthService = Depends(get_auth_
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(body: TokenResponse = Depends(get_auth_service)):
+async def logout(body: RefreshRequest, service: AuthService = Depends(get_auth_service)):
     await service.logout(refresh_token=body.refresh_token)
