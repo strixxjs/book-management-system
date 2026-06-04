@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.dependencies import get_current_user
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.book import BookCreate, BookRead, BookUpdate
+from app.schemas.book import BookCreate, BookFilters, BookRead, BookUpdate, BookListResponse
 from app.services.book import BookService
 
 router = APIRouter(prefix="/books", tags=["books"])
@@ -38,6 +38,17 @@ async def get_book(
         return await service.get_by_id(book_id)
     except LookupError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.get("/", response_model=BookListResponse)
+async def list_books(filters: BookFilters = Depends(), service: BookService = Depends(get_book_service), _: User = Depends(get_current_user)):
+    items, total = await service.list(filters)
+    return BookListResponse(
+        items=items,
+        total=total,
+        limit=filters.limit,
+        offset=filters.offset,
+    )
 
 
 @router.patch("/{book_id}", response_model=BookRead)

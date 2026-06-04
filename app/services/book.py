@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repositories.author import AuthorRepository
 from app.repositories.book import BookRepository
-from app.schemas.book import BookCreate, BookUpdate
+from app.schemas.book import BookCreate, BookUpdate, BookFilters
 
 
 class BookService:
@@ -52,3 +52,15 @@ class BookService:
         if book is None:
             raise LookupError(f"Book {book_id} not found")
         await self._book_repo.delete(book)
+
+    async def list(self, filters: BookFilters) -> tuple[list, int]:
+        return await self._book_repo.list(
+            title=filters.title,
+            author_name=filters.author_name,
+            genre=filters.genre.value if filters.genre else None,
+            year_from=filters.year_from,
+            year_to=filters.year_to,
+            sort=filters.sort,
+            limit=filters.limit,
+            offset=filters.offset,
+        )

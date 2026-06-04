@@ -2,7 +2,8 @@ from datetime import datetime, timezone
 from typing import Annotated
 from uuid import UUID
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, StringConstraints
+from pydantic import AfterValidator, BaseModel, ConfigDict, StringConstraints, Field
+from fastapi import Query
 
 from app.core.enums import Genre
 from app.schemas.author import AuthorRead
@@ -54,3 +55,23 @@ class BookRead(BaseModel):
     author: AuthorRead
     created_at: datetime
     updated_at: datetime
+
+
+class BookFilters(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    title: str | None = None
+    author_name: str | None = None
+    genre: Genre | None = None
+    year_from: int | None = None
+    year_to: int | None = None
+    sort: str | None = None
+    limit: int = Field(default=20, ge=1, le=100)
+    offset: int = Field(default=0, ge=0)
+
+
+class BookListResponse(BaseModel):
+    items: list[BookRead]
+    total: int
+    limit: int
+    offset: int

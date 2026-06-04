@@ -1,12 +1,18 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, asc, desc, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.book import Book
 from app.models.author import Author
 
+
+SORT_FIELDS = {
+    "title": Book.title,
+    "year": Book.year,
+    "created_at": Book.created_at,
+}
 
 class BookRepository:
     def __init__(self, session: AsyncSession) -> None:
@@ -36,3 +42,32 @@ class BookRepository:
     async def delete(self, book: Book) -> None:
         await self.session.delete(book)
         await self.session.flush()
+
+    async def list(self, title: str | None = None, author_name: str | None = None, genre: str | None = None, year_from: int | None = None, year_to: int | None = None, sort: str | None = None, limit: int = 20, offset: int = 0,) -> tuple[list[Book], int]:
+        query = (
+            select(Book)
+            .options(selectinload(Book.author))
+            .join(Book.author)
+        )
+
+        if title:
+            query = query.where(Book.title.ilike(f"%{title}%"))
+        if author_name:
+            query = query.where(Author.name.ilike(f"%{author_name}%"))
+        if genre:
+            query = query.where(Book.genre == genre)
+        if year_from:
+            query = query.where(Book.year >= year_from)
+        if year_to:
+            query = query.where(Book.year <= year_to)
+
+        sort_column = SORT_FIELDS.get(sort, Book.created_at)
+        query = query.order_by(asc(sort_column), asc(Book.id))
+
+        from sqlalchemy import func, select as sa_select
+        count_query = sa_select(func.count()).select_from(query.subquery())
+        total = (await self.session.execute(count_query)).scalar_one()
+
+        query = query.limit(limit).offset(offset)
+        result = await self.session.execute(query)
+        return result.scalars().all(), total
