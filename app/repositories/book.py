@@ -80,12 +80,11 @@ class BookRepository:
 
     async def get_all_for_export(self) -> list[Book]:
         """
-            Returns all books with their author eagerly loaded.
+        Returns all books with their author eagerly loaded.
         Uses selectinload instead of joinedload: when author cardinality
         is low relative to book count, two queries transfer less data
         than one wide JOIN with repeated author columns.
         Ordered by created_at for deterministic output in the exported file.
-            :return:
         """
         result = await self.session.execute(
             select(Book).options(selectinload(Book.author)).order_by(Book.created_at)
