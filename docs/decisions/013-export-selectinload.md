@@ -1,4 +1,4 @@
-# ADR-013: selectinload over joinedload for Export Query
+# 013. Selectinload over joinedload for Export Query
 
 ## Status
 Accepted

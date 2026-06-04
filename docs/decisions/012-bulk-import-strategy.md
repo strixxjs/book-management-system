@@ -1,4 +1,4 @@
-# ADR-012: Bulk Import Strategy - All-or-Nothing
+# 012. Bulk Import Strategy - All-or-Nothing
 
 ## Status
 Accepted
