@@ -7,7 +7,7 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, StringConstraints
 from app.core.enums import Genre
 from app.schemas.author import AuthorRead
 
-MIN_YEAR = 1500
+MIN_YEAR = 1800
 
 
 def _current_year() -> int:
