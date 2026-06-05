@@ -1,7 +1,10 @@
+import structlog
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+
+logger = structlog.get_logger()
 
 
 class FieldError(BaseModel):
@@ -88,13 +91,13 @@ async def validation_exception_handler(
 
 
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    """
-    Catches any exception that was not handled elsewhere.
-    Returns 500 with a generic message — no stack trace leaked to the client.
-
-    In production you would log exc here (structlog / logging).
-    We intentionally do not expose exc details in the response body.
-    """
+    logger.error(
+        "unhandled_exception",
+        exc_type=type(exc).__name__,
+        exc_message=str(exc),
+        path=request.url.path,
+        method=request.method,
+    )
     return _error_response(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         code="internal_error",

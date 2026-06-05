@@ -5,6 +5,8 @@ from fastapi import FastAPI
 from app.api.v1.auth import router as auth_router
 from app.api.v1.books import router as books_router
 from app.core.errors import register_exception_handlers
+from app.core.logging import configure_logging
+from app.core.middleware import RequestLoggingMiddleware
 from app.db.session import engine
 
 
@@ -14,6 +16,8 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 
+configure_logging()
+
 app = FastAPI(
     title="Book Management API",
     version="0.1.0",
@@ -21,6 +25,7 @@ app = FastAPI(
 )
 
 register_exception_handlers(app)
+app.add_middleware(RequestLoggingMiddleware)
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(books_router, prefix="/api/v1")
