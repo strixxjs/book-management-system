@@ -35,8 +35,9 @@ class BookService:
                 genre=data.genre.value,
                 year=data.year,
             )
-        except IntegrityError:
-            raise ValueError("Book with this title already exists for this author")
+        except IntegrityError as e:
+            await self._book_repo.session.rollback()
+            raise ValueError("Book with this title already exists for this author") from e
 
     async def get_by_id(self, book_id: UUID):
         book = await self._book_repo.get_by_id(book_id)
@@ -109,7 +110,10 @@ class BookService:
                 await self.create(book_in)
                 imported += 1
             except ValueError as exc:
-                raise ValueError(f"Row {imported + 1}: {exc}") from exc
+                errors.append(RowError(row=imported + 1, field=None, message=str(exc)))
+
+        if errors:
+            return BulkImportResponse(imported=0, errors=errors)
 
         return BulkImportResponse(imported=imported, errors=[])
 

@@ -44,7 +44,7 @@ async def list_books(
     service: BookService = Depends(get_book_service),
     _: User = Depends(get_current_user),
 ):
-    items, total = await service.get_git statuslist(filters)
+    items, total = await service.get_list(filters)
     return BookListResponse(
         items=items,
         total=total,
