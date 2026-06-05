@@ -28,7 +28,7 @@ def create_access_token(subject: str) -> str:
 
 def create_refresh_token(subject: str) -> str:
     expire = datetime.now(UTC) + timedelta(
-        minutes=settings.refresh_token_expire_minutes
+        days=settings.refresh_token_expire_days,
     )
     payload = {
         "sub": subject,

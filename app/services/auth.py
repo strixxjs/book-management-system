@@ -61,7 +61,7 @@ class AuthService:
         access_token = create_access_token(subject=user_id)
         refresh_token = create_refresh_token(subject=user_id)
         expires_at = datetime.now(UTC) + timedelta(
-            minutes=settings.refresh_token_expire_minutes
+            days=settings.refresh_token_expire_days
         )
         await self.token_repo.create(
             user_id=user_id,
@@ -69,3 +69,4 @@ class AuthService:
             expires_at=expires_at,
         )
         return TokenResponse(access_token=access_token, refresh_token=refresh_token)
+
