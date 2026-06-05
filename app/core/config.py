@@ -10,7 +10,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    app_name: str = "Book Managment System"
+    app_name: str = "Book Management System"
     debug: bool = False
 
     database_url: str

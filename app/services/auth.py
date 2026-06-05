@@ -45,7 +45,7 @@ class AuthService:
             raise ValueError("Invalid refresh token")
 
         if payload.get("type") != "refresh":
-            raise ValueError("Invali token type")
+            raise ValueError("Invalid token type")
 
         stored = await self.token_repo.get_by_token(refresh_token)
         if not stored:
@@ -69,4 +69,3 @@ class AuthService:
             expires_at=expires_at,
         )
         return TokenResponse(access_token=access_token, refresh_token=refresh_token)
-

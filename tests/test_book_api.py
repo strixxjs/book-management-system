@@ -385,3 +385,9 @@ class TestExport:
 
     async def test_csv_export_has_header_row(self, client):
         token = await register_and_login(client)
+        resp = await client.get(
+            "/api/v1/books/export?format=csv",
+            headers=auth_headers(token),
+        )
+        first_line = resp.text.splitlines()[0]
+        assert first_line == "id,title,author,genre,year,created_at"
