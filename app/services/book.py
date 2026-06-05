@@ -36,7 +36,6 @@ class BookService:
                 year=data.year,
             )
         except IntegrityError as e:
-            await self._book_repo.session.rollback()
             raise ValueError("Book with this title already exists for this author") from e
 
     async def get_by_id(self, book_id: UUID):
@@ -104,18 +103,15 @@ class BookService:
         if errors:
             return BulkImportResponse(imported=0, errors=errors)
 
-        imported = 0
-        for book_in in validated:
+        for i, book_in in enumerate(validated, start=1):
             try:
                 await self.create(book_in)
-                imported += 1
             except ValueError as exc:
-                errors.append(RowError(row=imported + 1, field=None, message=str(exc)))
+                await self._book_repo.session.rollback()
+                errors.append(RowError(row=i, field=None, message=str(exc)))
+                return BulkImportResponse(imported=0, errors=errors)
 
-        if errors:
-            return BulkImportResponse(imported=0, errors=errors)
-
-        return BulkImportResponse(imported=imported, errors=[])
+        return BulkImportResponse(imported=len(validated), errors=[])
 
     async def export_books_json(self) -> str:
         """

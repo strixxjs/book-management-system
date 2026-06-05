@@ -332,6 +332,26 @@ class TestBulkImport:
         assert r2.json()["imported"] == 0
         assert len(r2.json()["errors"]) > 0
 
+    async def test_valid_row_after_duplicate_is_not_persisted(self, client):
+        token = await register_and_login(client)
+        await create_book(client, token, title="Already Exists")
+
+        books = [
+            valid_book_payload(title="Already Exists"),
+            valid_book_payload(title="Brand New Book"),
+        ]
+        resp = await client.post(
+            "/api/v1/books/import",
+            files={"file": self._json_file(books)},
+            headers=auth_headers(token),
+        )
+        assert resp.json()["imported"] == 0
+        assert len(resp.json()["errors"]) > 0
+
+        list_resp = await client.get("/api/v1/books/", headers=auth_headers(token))
+        titles = [b["title"] for b in list_resp.json()["items"]]
+        assert "Brand New Book" not in titles
+
 
 class TestExport:
     async def test_json_export_content_type(self, client):
