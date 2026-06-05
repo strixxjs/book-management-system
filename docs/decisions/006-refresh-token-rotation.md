@@ -19,3 +19,9 @@ On every /refresh, the old token is deleted and a new one issued (rotation).
   something's wrong, not a silent 30-day breach.
 - Delete + insert happen in one transaction (get_db commits at the end). If it
   fails halfway, everything rolls back. The user never ends up with no token.
+
+## Cost we accept
+- Refresh tokens are stored as plaintext JWT strings. If the database
+  is read-compromised, tokens are usable until expiry. The production
+  answer is to store only a SHA-256 hash and compare on lookup.
+  Left as plaintext here to keep the implementation focused.

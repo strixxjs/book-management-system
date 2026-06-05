@@ -36,6 +36,7 @@ class AuthService:
             raise ValueError("Invalid credentials")
         if not user.is_active:
             raise ValueError("User inactive")
+        await self.token_repo.delete_expired()
         return await self._issue_tokens(str(user.id))
 
     async def refresh(self, refresh_token: str) -> TokenResponse:
@@ -47,11 +48,10 @@ class AuthService:
         if payload.get("type") != "refresh":
             raise ValueError("Invalid token type")
 
-        stored = await self.token_repo.get_by_token(refresh_token)
-        if not stored:
+        deleted = await self.token_repo.delete_by_token(refresh_token)
+        if not deleted:
             raise ValueError("Refresh token not found or already used")
 
-        await self.token_repo.delete_by_token(refresh_token)
         return await self._issue_tokens(payload["sub"])
 
     async def logout(self, refresh_token: str) -> None:

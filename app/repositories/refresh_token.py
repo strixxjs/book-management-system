@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,12 +28,17 @@ class RefreshTokenRepository:
         )
         return result.scalar_one_or_none()
 
-    async def delete_by_token(self, token: str) -> None:
-        await self.session.execute(
-            delete(RefreshToken).where(RefreshToken.token == token)
+    async def delete_by_token(self, token: str) -> bool:
+        result = await self.session.execute(
+            delete(RefreshToken)
+            .where(RefreshToken.token == token)
+            .returning(RefreshToken.id)
         )
+        return result.scalar_one_or_none() is not None
 
     async def delete_expired(self) -> None:
         await self.session.execute(
-            delete(RefreshToken).where(RefreshToken.expires_at < datetime.utcnow())
+            delete(RefreshToken).where(
+                RefreshToken.expires_at < datetime.now(timezone.utc)
+            )
         )
