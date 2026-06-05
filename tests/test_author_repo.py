@@ -1,5 +1,9 @@
+import pytest
+
 from app.models.author import Author
 from app.repositories.author import AuthorRepository
+
+pytestmark = pytest.mark.asyncio
 
 
 async def test_get_or_create_creates_new_author(session):
