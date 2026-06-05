@@ -19,8 +19,3 @@ On every /refresh, the old token is deleted and a new one issued (rotation).
   something's wrong, not a silent 30-day breach.
 - Delete + insert happen in one transaction (get_db commits at the end). If it
   fails halfway, everything rolls back. The user never ends up with no token.
-
-## Cost we accept
-- Every refresh is a DB write. Fine at our scale. At a bigger scale this is where
-  you'd reach for Redis and a cleanup job for expired tokens (delete_expired
-  already exists for that).

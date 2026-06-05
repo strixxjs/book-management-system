@@ -2,7 +2,7 @@
 
 ## Context
 The spec lists the rules a book must satisfy: non-empty title and author, year
-between 1500 and the current year, genre from a fixed list. What it actually asks
+between 1800 and the current year, genre from a fixed list. What it actually asks
 is where each rule is enforced. Our architecture already says format is checked at
 the API boundary and integrity in the DB, so the work is sorting each rule into
 the right bucket.
@@ -32,7 +32,7 @@ schema.
 
 ## Cost we accept
 - Nothing below the API enforces these. A bulk SQL load or a second service could
-  write a year of 1200 or a genre off the list. We accept that because the API is
+  write a year of 1800 or a genre off the list. We accept that because the API is
   the only writer today; the moment that stops being true, the answer is a CHECK
   constraint as a second line of defence, not pulling the rule out of Pydantic.
   Same trade-off 007 makes for genre, stated once as a principle.
